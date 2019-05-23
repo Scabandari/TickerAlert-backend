@@ -17,11 +17,23 @@ router.get(
 
 router.get(
 	"/auth/google/callback",
-	passport.authenticate("google", { failureRedirect: "/", session: false }),
-	function(req, res) {
-		var token = req.user.token;
-		res.redirect("http://localhost:3000/home?token=" + token);
-	}
+	// passport.authenticate("google", { failureRedirect: "/", session: false }),
+    passport.authenticate("google", { failureRedirect: "/"}),
+    function(req, res) {
+		// const token = req.user.token;
+		// console.log(`req.user.token: ${token}`);
+        // console.log(`req.user: ${req.user}`);
+        // res.redirect("http://localhost:3000/home?token=" + token);
+
+        // res.redirect("http://localhost:3000/home");
+        res.redirect(`http://localhost:3000/momentum?user_id=${req.user._id}`);
+
+    }
 );
+
+router.get("/auth/google/logout", (req, res) => {
+    req.logout();
+    res.redirect("http://localhost:3000/logout")
+});
 
 module.exports = router;
