@@ -1,5 +1,5 @@
 const axios = require('axios');
-const util = require('util');
+//const util = require('util');
 const constants = require('../../constants/momentumConstants');
 const keys = require('../../config/keys');
 const api_key = keys.alphaVantageKey;
@@ -11,9 +11,9 @@ const {MONTHLY, WEEKLY, DAILY, HOURLY,
     CLOSE, VOLUME, RETURN_15MIN, RETURN_60MIN} = constants;
 
 const timeframe_params = {
-    MONTHLY: MONTHLY,
-    WEEKLY: WEEKLY,
-    DAILY: DAILY,
+    // MONTHLY: MONTHLY,
+    // WEEKLY: WEEKLY,
+    // DAILY: DAILY,
     hour: {
         function: INTRA_DAY,
         interval: HOURLY,
