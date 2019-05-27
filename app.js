@@ -7,6 +7,7 @@ const logger = require("morgan");
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('./models/User');
+require('./models/TimeFrames');
 const passport = require("passport");
 const keys = require("./config/keys");
 const mongoose = require("mongoose");
@@ -17,8 +18,10 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/userRoutes");
 const momentumRouter = require("./routes/momentumRoutes");
 const tickerRouter = require("./routes/tickerRoutes");
+const timeFrameRouter = require("./routes/timeFrameRoutes");
 
 const app = express();
+app.disable('etag');  //TODO workaround for 304 msg's
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -52,6 +55,7 @@ app.use("/users", usersRouter);
 
 app.use("/momentum", momentumRouter);
 app.use("/tickers", tickerRouter);
+app.use("/timeframes", timeFrameRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
