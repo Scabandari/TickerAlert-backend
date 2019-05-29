@@ -2,15 +2,18 @@ const express = require("express");
 const router = express.Router();
 const utils = require("../utils/stocks/momentumUtils");
 
-router.get("/price", async (req, res) => {
+
+router.get("/", async (req, res) => {
     //const {function_, symbol, interval} = req.params;
-    const {symbol, interval, stat} = req.query;
-    console.log(`symbol: ${symbol} interval: ${interval}`);
+    const {symbol, stat} = req.query;
+    //const {symbol, stat} = req.query;
+    //console.log(`symbol: ${symbol} interval: ${interval}`);
     try {
-        const response = await utils.getMomentum(symbol, interval, stat);
+        //const momentum = await utils.getMomentum(symbol, stat);
+        console.log(`momentumRoutes momentum: ${JSON.stringify(momentum)}`);
+        //const momentum = await utils.getMomentum(symbol, interval, stat);
         // TODO anything other than correct stat=close in url makes stat=volume, fix this w/ proper error msg
-        console.log(`response: ${response}`);
-        res.send({momentum: response});
+        res.send(momentum);  // TODO one more double check the numbers are correct here
     } catch (err) {
         res.send(err);
     }
