@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
     //const {symbol, stat} = req.query;
     //console.log(`symbol: ${symbol} interval: ${interval}`);
     try {
-        const momentum = await utils.getMomentum(symbol, stat);
+        //const momentum = await utils.getMomentum(symbol, stat);
         console.log(`momentumRoutes momentum: ${JSON.stringify(momentum)}`);
         //const momentum = await utils.getMomentum(symbol, interval, stat);
         // TODO anything other than correct stat=close in url makes stat=volume, fix this w/ proper error msg
