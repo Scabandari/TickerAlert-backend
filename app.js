@@ -78,25 +78,31 @@ const base_url = 'http://localhost:4500';  // TODO prod/dev??
 // todo every minute update one of the assets(Ticker)
 let counter = 0;
 setInterval(async () => {
-    // There's a 5 per min limit on alphaVantage api
+    // There's a 5 per min & 500 per day limit on alphaVantage api
+    // getMomentum() makes 2 api calls
     const tickers = await Ticker.find({});
     const ticker = tickers[counter % tickers.length];
 
     counter += 1;
-    console.log(`ticker before: ${ticker}`);
+    //console.log(`ticker before: ${ticker}`);
     const momentum = await utils.getMomentum(ticker.name);
-    console.log(ticker.name);
-    console.log(JSON.stringify(momentum));
-    //TODO use own put method pls
+    // console.log(ticker.name);
+    // console.log(JSON.stringify(momentum));
+    // //TODO use own put method pls
     ticker.momentum.hr = momentum.hr;
     // console.log(`momentum.hr: ${momentum.hr}`);
     // console.log(`ticker: ${JSON.stringify(ticker)}`);
     ticker.momentum.min15 = momentum.min15;
     ticker.momentum.min5 = momentum.min5;
     ticker.momentum.min = momentum.min;
+    ticker.momentum.month = momentum.month;
+    ticker.momentum.week = momentum.week;
+    ticker.momentum.day = momentum.day;
+    ticker.momentum.hr = momentum.hr;
     await ticker.save();
-    console.log(`ticker after: ${ticker}`);
-// console.log(`This get's printed every minute`);
-}, 60001);
+    // console.log(`ticker after: ${ticker}`);
+}, 360001);
+
+
 
 module.exports = app;

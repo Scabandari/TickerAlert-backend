@@ -5,8 +5,8 @@ const keys = require('../../config/keys');
 const api_key = keys.alphaVantageKey;
 const api_endpoint = keys.alphaVantageEndpoint;
 
-const {INTRA_DAY, DATA_KEY_5MIN, DATA_KEY_1MIN,
-    CLOSE, VOLUME, DATA_KEY_15MIN, DATA_KEY_60MIN} = constants;
+const {INTRA_DAY, DAILY, DATA_KEY_5MIN, DATA_KEY_1MIN,
+    CLOSE, VOLUME, DATA_KEY_15MIN, DATA_KEY_60MIN, DATA_KEY_DAILY} = constants;
 
 const calcMomentum = (data, time_steps, stat) => {
     const ohlcv = stat === 'close' ? CLOSE : VOLUME;
@@ -23,35 +23,37 @@ module.exports = {
         //const intervals = ['hour', 'one_min', 'five_min', 'fifteen_min'];
     async getMomentum (symbol, stat='close')  {
 
-        const [hour, min15, min5, min] = await Promise.all([
-            axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=60min&apikey=${api_key}`),
-            axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=15min&apikey=${api_key}`),
-            axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=5min&apikey=${api_key}`),
+        // const [hour, min15, min5, min] = await Promise.all([
+        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=60min&apikey=${api_key}`),
+        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=15min&apikey=${api_key}`),
+        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=5min&apikey=${api_key}`),
+        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=1min&apikey=${api_key}`),
+        // ]);
+        const [min, day] = await Promise.all([
             axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=1min&apikey=${api_key}`),
+            axios.get(`${api_endpoint}function=${DAILY}&symbol=${symbol}&apikey=${api_key}`),
         ]);
         const results = [
-            {data_key: DATA_KEY_60MIN, data: hour, return_key: 'hr'},
-            {data_key: DATA_KEY_15MIN, data: min15, return_key: 'min15'},
-            {data_key: DATA_KEY_5MIN, data: min5, return_key: 'min5'},
-            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min'}
+            {data_key: DATA_KEY_1MIN, data: min, return_key: 'hr', time_steps: 59},
+            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min15', time_steps: 14},
+            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min5', time_steps: 4},
+            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min', time_steps: 1},
+
+            {data_key: DATA_KEY_DAILY, data: day, return_key: 'month', time_steps: 21},
+            {data_key: DATA_KEY_DAILY, data: day, return_key: 'week', time_steps: 4},
+            {data_key: DATA_KEY_DAILY, data: day, return_key: 'day', time_steps: 1},
+
         ];
         const momentums = {name: symbol};
         results.forEach(result => {
             const data = result.data.data[result.data_key];
-            const momentum = calcMomentum(data, 1, stat);
+            if (typeof data == 'undefined') {
+                console.log(`data undefined: ${util.inspect(result)}`);
+            }
+            //console.log(`data: ${data}`);
+            const momentum = calcMomentum(data, result.time_steps, stat);
             momentums[result.return_key] = momentum;
         });
-
-        // for (const result of results) {
-        //     const data = result.data.data[result.data_key];
-        //     //console.log(`result.data: ${util.inspect(result.data)}`);
-        //     console.log(`data: ${data}`);
-        //     // if (typeof data == 'undefined') {
-        //     //     console.log(util.inspect(result));
-        //     // }
-        //     //const momentum = calcMomentum(data, 1, stat);
-        //     //momentums[result.return_key] = momentum;
-        // }
         //console.log(`momentums: ${JSON.stringify(momentums)}`);
         return momentums;
         //return ({msg: 'fine'});
@@ -88,7 +90,9 @@ module.exports = {
 //         _id: "5cc8c4e987b0250aa673472e",
 //         name: "TLRY",
 //         __v: 0
-//     },
+
+
+//     },//////////////////////////////////////////////////////////////////////////////
 //     {
 //         _id: "5cc8c4f187b0250aa673472f",
 //         name: "CBIS",
