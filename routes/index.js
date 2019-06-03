@@ -2,6 +2,7 @@ const express = require("express");
 //const mongoose = require("mongoose");
 const router = express.Router();
 const passport = require("passport");
+const env = require("../config/env");
 
 
 /* GET home page. */
@@ -26,7 +27,9 @@ router.get(
         // res.redirect("http://localhost:3000/home?token=" + token);
 
         // res.redirect("http://localhost:3000/home");
-        res.redirect(`http://localhost:3000/momentum?user_id=${req.user._id}`);
+        const url = env.front_url_dev;
+        res.redirect(`${url}/momentum?user_id=${req.user._id}`);
+        //res.redirect(`http://localhost:3000/momentum?user_id=${req.user._id}`);
 
     }
 );
