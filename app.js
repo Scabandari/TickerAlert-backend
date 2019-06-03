@@ -70,8 +70,12 @@ app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.render("error");
 });
-const base_url = 'http://localhost:4500';  // TODO prod/dev??
-// todo every minute update one of the assets(Ticker)
+
+// const dev_url = 'http://localhost:4500';
+// const prod_url = 'ec2-52-15-220-86.us-east-2.compute.amazonaws.com:4500';
+// let dev = true;
+// const base_url = dev ? dev_url : prod_url;
+
 let counter = 0;
 setInterval(async () => {
     // There's a 5 per min & 500 per day limit on alphaVantage api
@@ -82,7 +86,7 @@ setInterval(async () => {
     counter += 1;
     //console.log(`ticker before: ${ticker}`);
     const momentum = await utils.getMomentum(ticker.name);
-    //console.log(`ticker before: ${ticker}`);
+    console.log(`ticker before: ${JSON.stringify(ticker, null, 2)}`);
     //console.log(JSON.stringify(momentum));
     // //TODO use own put method pls
     Object.keys(momentum).forEach(key => {
@@ -96,9 +100,10 @@ setInterval(async () => {
         }
     });
     await ticker.save();
-    console.log(`Ticker updated: ${ticker.name}`);
- }, 360001);
-//}, 10001);
+    console.log(`ticker after: ${JSON.stringify(ticker, null, 2)}`);
+    //console.log(`Ticker updated: ${ticker.name}`);
+ //}, 360001);
+}, 10001);
 
 
 module.exports = app;
