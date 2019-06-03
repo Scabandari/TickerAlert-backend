@@ -101,9 +101,9 @@ setInterval(async () => {
     });
     await ticker.save();
     console.log(`ticker after: ${JSON.stringify(ticker, null, 2)}`);
-    //console.log(`Ticker updated: ${ticker.name}`);
- //}, 360001);
-}, 10001);
+    console.log(`Ticker updated: ${ticker.name}`);
+ }, 360001);
+//}, 10001);
 
 
 module.exports = app;
