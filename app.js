@@ -18,9 +18,7 @@ mongoose.connect(keys.mongoURI);
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/userRoutes");
-const momentumRouter = require("./routes/momentumRoutes");
 const tickerRouter = require("./routes/tickerRoutes");
-const timeFrameRouter = require("./routes/timeFrameRoutes");
 
 const app = express();
 //app.disable('etag');  //TODO workaround for 304 msg's
@@ -55,9 +53,7 @@ app.use("/", indexRouter);
 // app.use("/", indexRouter);
 app.use("/users", usersRouter);
 
-app.use("/momentum", momentumRouter);
 app.use("/tickers", tickerRouter);
-app.use("/timeframes", timeFrameRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -74,8 +70,12 @@ app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.render("error");
 });
-const base_url = 'http://localhost:4500';  // TODO prod/dev??
-// todo every minute update one of the assets(Ticker)
+
+// const dev_url = 'http://localhost:4500';
+// const prod_url = 'ec2-52-15-220-86.us-east-2.compute.amazonaws.com:4500';
+// let dev = true;
+// const base_url = dev ? dev_url : prod_url;
+
 let counter = 0;
 setInterval(async () => {
     // There's a 5 per min & 500 per day limit on alphaVantage api
@@ -86,23 +86,24 @@ setInterval(async () => {
     counter += 1;
     //console.log(`ticker before: ${ticker}`);
     const momentum = await utils.getMomentum(ticker.name);
-    // console.log(ticker.name);
-    // console.log(JSON.stringify(momentum));
+    console.log(`ticker before: ${JSON.stringify(ticker, null, 2)}`);
+    //console.log(JSON.stringify(momentum));
     // //TODO use own put method pls
-    ticker.momentum.hr = momentum.hr;
-    // console.log(`momentum.hr: ${momentum.hr}`);
-    // console.log(`ticker: ${JSON.stringify(ticker)}`);
-    ticker.momentum.min15 = momentum.min15;
-    ticker.momentum.min5 = momentum.min5;
-    ticker.momentum.min = momentum.min;
-    ticker.momentum.month = momentum.month;
-    ticker.momentum.week = momentum.week;
-    ticker.momentum.day = momentum.day;
-    ticker.momentum.hr = momentum.hr;
+    Object.keys(momentum).forEach(key => {
+        // console.log(`key: ${key}`);
+        // console.log(`ticker: ${JSON.stringify(ticker, null, 2)}`);
+        // console.log(`momentum: ${JSON.stringify(momentum, null, 2)}`);
+        // console.log(`ticker.momentum[key], momentum[key]: ${ticker.momentum[key]}, ${JSON.stringify(momentum[key])}`);
+        if (key !== 'name') {
+            ticker.momentum[key].close = momentum[key].close;
+            ticker.momentum[key].volume = momentum[key].volume;
+        }
+    });
     await ticker.save();
-    // console.log(`ticker after: ${ticker}`);
-}, 360001);
-
+    console.log(`ticker after: ${JSON.stringify(ticker, null, 2)}`);
+    //console.log(`Ticker updated: ${ticker.name}`);
+ //}, 360001);
+}, 10001);
 
 
 module.exports = app;
