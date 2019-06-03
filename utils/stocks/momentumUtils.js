@@ -6,10 +6,11 @@ const api_key = keys.alphaVantageKey;
 const api_endpoint = keys.alphaVantageEndpoint;
 
 const {INTRA_DAY, DAILY, DATA_KEY_5MIN, DATA_KEY_1MIN,
-    CLOSE, VOLUME, DATA_KEY_15MIN, DATA_KEY_60MIN, DATA_KEY_DAILY} = constants;
+    CLOSE_DAILY, VOLUME_DAILY, CLOSE_INTRADAY, VOLUME_INTRADAY,
+    DATA_KEY_15MIN, DATA_KEY_60MIN, DATA_KEY_DAILY} = constants;
 
-const calcMomentum = (data, time_steps, stat) => {
-    const ohlcv = stat === 'close' ? CLOSE : VOLUME;
+const calcMomentum = (data, time_steps, ohlcv) => {
+    //const ohlcv = stat === 'close' ? CLOSE : VOLUME;
     const obj_keys = Object.keys(data);
     const key1 = obj_keys[0];
     const key2 = obj_keys[time_steps];
@@ -19,40 +20,82 @@ const calcMomentum = (data, time_steps, stat) => {
 };
 
 module.exports = {
- //   async getMomentum (symbol, interval, stat='close')  {
-        //const intervals = ['hour', 'one_min', 'five_min', 'fifteen_min'];
-    async getMomentum (symbol, stat='close')  {
-
-        // const [hour, min15, min5, min] = await Promise.all([
-        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=60min&apikey=${api_key}`),
-        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=15min&apikey=${api_key}`),
-        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=5min&apikey=${api_key}`),
-        //     axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=1min&apikey=${api_key}`),
-        // ]);
+    async getMomentum (symbol)  {
         const [min, day] = await Promise.all([
             axios.get(`${api_endpoint}function=${INTRA_DAY}&symbol=${symbol}&interval=1min&apikey=${api_key}`),
             axios.get(`${api_endpoint}function=${DAILY}&symbol=${symbol}&apikey=${api_key}`),
         ]);
         const results = [
-            {data_key: DATA_KEY_1MIN, data: min, return_key: 'hr', time_steps: 59},
-            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min15', time_steps: 14},
-            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min5', time_steps: 4},
-            {data_key: DATA_KEY_1MIN, data: min, return_key: 'min', time_steps: 1},
+            {
+                data_key: DATA_KEY_1MIN, data: min,
+                return_key: 'hr',
+                time_steps: 59,
+                close_key: CLOSE_INTRADAY,
+                vol_key: VOLUME_INTRADAY
+            },
+            {
+                data_key: DATA_KEY_1MIN,
+                data: min,
+                return_key: 'min15',
+                time_steps: 14,
+                close_key: CLOSE_INTRADAY,
+                vol_key: VOLUME_INTRADAY
+            },
+            {
+                data_key: DATA_KEY_1MIN,
+                data: min,
+                return_key: 'min5',
+                time_steps: 4,
+                close_key: CLOSE_INTRADAY,
+                vol_key: VOLUME_INTRADAY
+            },
+            {
+                data_key: DATA_KEY_1MIN,
+                data: min,
+                return_key: 'min',
+                time_steps: 1,
+                close_key: CLOSE_INTRADAY,
+                vol_key: VOLUME_INTRADAY
+            },
 
-            {data_key: DATA_KEY_DAILY, data: day, return_key: 'month', time_steps: 21},
-            {data_key: DATA_KEY_DAILY, data: day, return_key: 'week', time_steps: 4},
-            {data_key: DATA_KEY_DAILY, data: day, return_key: 'day', time_steps: 1},
+            {
+                data_key: DATA_KEY_DAILY,
+                data: day,
+                return_key: 'month',
+                time_steps: 21,
+                close_key: CLOSE_DAILY,
+                vol_key: VOLUME_DAILY
+            },
+            {
+                data_key: DATA_KEY_DAILY,
+                data: day,
+                return_key: 'week',
+                time_steps: 4,
+                close_key: CLOSE_DAILY,
+                vol_key: VOLUME_DAILY
+            },
+            {
+                data_key: DATA_KEY_DAILY,
+                data: day,
+                return_key: 'day',
+                time_steps: 1,
+                close_key: CLOSE_DAILY,
+                vol_key: VOLUME_DAILY
+            },
 
         ];
         const momentums = {name: symbol};
         results.forEach(result => {
             const data = result.data.data[result.data_key];
-            if (typeof data == 'undefined') {
-                console.log(`data undefined: ${util.inspect(result)}`);
-            }
+            // if (typeof data == 'undefined') {
+            //     console.log(`data undefined: ${util.inspect(result)}`);
+            // }
             //console.log(`data: ${data}`);
-            const momentum = calcMomentum(data, result.time_steps, stat);
-            momentums[result.return_key] = momentum;
+            const closeMomentum = calcMomentum(data, result.time_steps, result.close_key);
+            //console.log(`closeMomentum: ${JSON.stringify(closeMomentum)}`);
+            const volumeMomentum = calcMomentum(data, result.time_steps, result.vol_key);
+            //console.log(`volumeMomentum: ${JSON.stringify(volumeMomentum)}`);
+            momentums[result.return_key] = {close: closeMomentum, volume: volumeMomentum};
         });
         //console.log(`momentums: ${JSON.stringify(momentums)}`);
         return momentums;

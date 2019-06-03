@@ -14,7 +14,9 @@ module.exports = {
     DATA_KEY_DAILY: 'Time Series (Daily)',
     INTRA_DAY: 'TIME_SERIES_INTRADAY',
     DAILY: 'TIME_SERIES_DAILY_ADJUSTED',
-    CLOSE: '4. close',
-    VOLUME: '5. volume',
+    CLOSE_DAILY: '5. adjusted close',
+    VOLUME_DAILY: '6. volume',
+    CLOSE_INTRADAY: '4. close',
+    VOLUME_INTRADAY: '5. volume',
     //INTERVALS: ['hour' ]  //TODO delete unused constants
 };
