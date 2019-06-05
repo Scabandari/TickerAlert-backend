@@ -16,10 +16,6 @@ const utils = require("./utils/stocks/momentumUtils");
 mongoose.Promise = global.Promise;
 mongoose.connect(keys.mongoURI);
 
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/userRoutes");
-const tickerRouter = require("./routes/tickerRoutes");
-
 const app = express();
 //app.disable('etag');  //TODO workaround for 304 msg's
 
@@ -28,7 +24,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
 app.use(cors());
-app.use(cors({origin: 'http://localhost:3000'}));
+//app.use(cors({origin: 'http://localhost:3000'}));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -47,6 +43,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 require("./config/passport");
 
+
+const indexRouter = require("./routes/index");
+const usersRouter = require("./routes/userRoutes");
+const tickerRouter = require("./routes/tickerRoutes");
 
 app.use("/", indexRouter);
 
