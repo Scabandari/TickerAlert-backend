@@ -21,22 +21,21 @@ router.get(
 	// passport.authenticate("google", { failureRedirect: "/", session: false }),
     passport.authenticate("google", { failureRedirect: "/"}),
     function(req, res) {
-		// const token = req.user.token;
-		// console.log(`req.user.token: ${token}`);
-        // console.log(`req.user: ${req.user}`);
-        // res.redirect("http://localhost:3000/home?token=" + token);
-
-        // res.redirect("http://localhost:3000/home");
-        const url = env.front_url_dev;
+        const url = env.dev_mode ? env.front_url_dev : env.front_url_prod;
+        //res.redirect(`${url}/momentum?user_id=${req.user._id}`);
+        // res.redirect(`http://localhost:3000/momentum?user_id=${req.user._id}`);
         res.redirect(`${url}/momentum?user_id=${req.user._id}`);
-        //res.redirect(`http://localhost:3000/momentum?user_id=${req.user._id}`);
+
 
     }
 );
 
 router.get("/auth/google/logout", (req, res) => {
+    const url = env.dev_mode ? env.front_url_dev : env.front_url_prod;
     req.logout();
-    res.redirect("http://localhost:3000/logout")
+    // res.redirect("http://localhost:3000/logout")
+    res.redirect(`${url}/logout`);
+
 });
 
 module.exports = router;
