@@ -26,7 +26,6 @@ router.get(
         // res.redirect(`http://localhost:3000/momentum?user_id=${req.user._id}`);
         res.redirect(`${url}/momentum?user_id=${req.user._id}`);
 
-
     }
 );
 
@@ -34,7 +33,8 @@ router.get("/auth/google/logout", (req, res) => {
     const url = env.dev_mode ? env.front_url_dev : env.front_url_prod;
     req.logout();
     // res.redirect("http://localhost:3000/logout")
-    res.redirect(`${url}/logout`);
+    //res.redirect(`${url}/logout`);
+    res.redirect(url);
 
 });
 
