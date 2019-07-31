@@ -16,6 +16,9 @@ const utils = require("./utils/stocks/momentumUtils");
 mongoose.Promise = global.Promise;
 mongoose.connect(keys.mongoURI);
 
+// require('./models/User');
+// require('./models/TimeFrames');
+
 const app = express();
 //app.disable('etag');  //TODO workaround for 304 msg's
 
@@ -25,6 +28,7 @@ app.set("view engine", "jade");
 
 app.use(cors());
 //app.use(cors({origin: 'http://localhost:3000'}));
+app.use(cors({origin: '*'}));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -77,33 +81,33 @@ app.use(function(err, req, res, next) {
 // const base_url = dev ? dev_url : prod_url;
 
 let counter = 0;
-setInterval(async () => {
-    // There's a 5 per min & 500 per day limit on alphaVantage api
-    // getMomentum() makes 2 api calls
-    const tickers = await Ticker.find({});
-    const ticker = tickers[counter % tickers.length];
-
-    counter += 1;
-    //console.log(`ticker before: ${ticker}`);
-    const momentum = await utils.getMomentum(ticker.name);
-    console.log(`ticker before: ${JSON.stringify(ticker, null, 2)}`);
-    //console.log(JSON.stringify(momentum));
-    // //TODO use own put method pls
-    Object.keys(momentum).forEach(key => {
-        // console.log(`key: ${key}`);
-        // console.log(`ticker: ${JSON.stringify(ticker, null, 2)}`);
-        // console.log(`momentum: ${JSON.stringify(momentum, null, 2)}`);
-        // console.log(`ticker.momentum[key], momentum[key]: ${ticker.momentum[key]}, ${JSON.stringify(momentum[key])}`);
-        if (key !== 'name') {
-            ticker.momentum[key].close = momentum[key].close;
-            ticker.momentum[key].volume = momentum[key].volume;
-        }
-    });
-    await ticker.save();
-    console.log(`ticker after: ${JSON.stringify(ticker, null, 2)}`);
-    console.log(`Ticker updated: ${ticker.name}`);
- }, 360001);
-//}, 10001);
+// setInterval(async () => {
+//     // There's a 5 per min & 500 per day limit on alphaVantage api
+//     // getMomentum() makes 2 api calls
+//     const tickers = await Ticker.find({});
+//     const ticker = tickers[counter % tickers.length];
+//
+//     counter += 1;
+//     //console.log(`ticker before: ${ticker}`);
+//     const momentum = await utils.getMomentum(ticker.name);
+//     console.log(`ticker before: ${JSON.stringify(ticker, null, 2)}`);
+//     //console.log(JSON.stringify(momentum));
+//     // //TODO use own put method pls
+//     Object.keys(momentum).forEach(key => {
+//         // console.log(`key: ${key}`);
+//         // console.log(`ticker: ${JSON.stringify(ticker, null, 2)}`);
+//         // console.log(`momentum: ${JSON.stringify(momentum, null, 2)}`);
+//         // console.log(`ticker.momentum[key], momentum[key]: ${ticker.momentum[key]}, ${JSON.stringify(momentum[key])}`);
+//         if (key !== 'name') {
+//             ticker.momentum[key].close = momentum[key].close;
+//             ticker.momentum[key].volume = momentum[key].volume;
+//         }
+//     });
+//     await ticker.save();
+//     console.log(`ticker after: ${JSON.stringify(ticker, null, 2)}`);
+//     console.log(`Ticker updated: ${ticker.name}`);
+//  }, 360001);
+// //}, 10001);
 
 
 module.exports = app;

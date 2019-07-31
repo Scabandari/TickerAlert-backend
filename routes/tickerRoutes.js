@@ -1,8 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Ticker = require('../models/Ticker');
-const momentumUtils = require('../utils/stocks/momentumUtils');
-const utils = require('util');
+const util = require('util');
+const axios = require('axios');
+const keys = require('../config/keys');
+const api_endpoint = keys.alphaVantageEndpoint;
+const api_key = keys.alphaVantageKey;
+
+const SYMBOL_SEARCH = 'SYMBOL_SEARCH';
 
 router.get("/", async (req, res) => {
     try {
@@ -12,6 +17,20 @@ router.get("/", async (req, res) => {
         res.send(err);
     }
 });
+
+router.post("/", async (req, res) => {
+    let {name} = req.query;
+    const response = axios.get(`${api_endpoint}function=${SYMBOL_SEARCH}&keywords=${name}&apikey=${api_key}`);
+    //TODO response is empty?????????????????
+    console.log(`response: ${JSON.stringify(response, null, 2)}`);
+        // const ticker = await new Ticker({name});
+    // await ticker.save();
+    //res.send(ticker);
+    res.send('working');
+});
+
+module.exports = router;
+
 
 // router.put("/:name", async (req, res) => {
 //     let {name} = req.params;
@@ -40,12 +59,3 @@ router.get("/", async (req, res) => {
 //     console.log(`ticker: ${utils.inspect(ticker)}`);
 //     res.send({msg: 'Asset updated', asset: ticker});
 // });
-
-router.post("/", async (req, res) => {
-    let {name} = req.query;
-    const ticker = await new Ticker({name});
-    await ticker.save();
-    res.send(ticker);
-});
-
-module.exports = router;
